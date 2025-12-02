@@ -1,6 +1,6 @@
 # nextbus-api
 
-I'm an experienced Ruby developer, learning Go. My aim is to build this without using AI (unless I get majorly stuck).
+I'm an experienced Ruby developer, learning Go
 
 Happy to receive feedback on anything
 
