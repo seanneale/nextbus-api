@@ -17,7 +17,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func handleTsoWoHang(w http.ResponseWriter, r *http.Request) {
 	type response struct {
-		tsoWoHang, makPin []busTime
+		TsoWoHang, MakPin []busTime
 	}
 
 	// var tmplFile = "templates/tsowohang.html"
@@ -27,13 +27,38 @@ func handleTsoWoHang(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tswResponse := response{tsoWoHang: kmb_bus_times("B959226950B0DEA7"), makPin: kmb_bus_times("C7548A3C37ADC1AA")}
+	tswResponse := response{TsoWoHang: kmb_bus_times("B959226950B0DEA7"), MakPin: kmb_bus_times("B2F4485FA517FEED")}
 
 	// fmt.Println(time.Now())
 	fmt.Println("Rendering....")
-	fmt.Println(tswResponse.makPin)
+	fmt.Println(tswResponse.MakPin)
 
-	err = tmpl.Execute(w, kmb_bus_times("C7548A3C37ADC1AA"))
+	for _, bus := range tswResponse.MakPin {
+		fmt.Println(bus.RouteNo)
+	}
+
+	err = tmpl.Execute(w, tswResponse)
+	if err != nil {
+		// http.Error(w, "Error loading home page 2", http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleLearningCenter(w http.ResponseWriter, r *http.Request) {
+	type response struct {
+		ShaKokMei, HongKongAcademy []busTime
+	}
+
+	// var tmplFile = "templates/tsowohang.html"
+	tmpl, err := template.ParseFiles("templates/learningcenter.html")
+	if err != nil {
+		http.Error(w, "Error loading home page 1", http.StatusInternalServerError)
+		return
+	}
+
+	lcResponse := response{ShaKokMei: kmb_bus_times("F85F7F6FEB0812B5"), HongKongAcademy: kmb_bus_times("1AE7D87716BC52B1")}
+
+	err = tmpl.Execute(w, lcResponse)
 	if err != nil {
 		// http.Error(w, "Error loading home page 2", http.StatusInternalServerError)
 		return

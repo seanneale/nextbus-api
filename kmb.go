@@ -6,12 +6,14 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"slices"
 	"sort"
 	"time"
 )
 
 type busTime struct {
-	eta, routeNo, destinationName string
+	Eta, RouteNo, DestinationName string
+	WaitTime                      time.Duration
 }
 
 func kmb_bus_times(stop_id string) []busTime {
@@ -57,12 +59,13 @@ func kmb_bus_times(stop_id string) []busTime {
 	}
 
 	//  load hk timezone
-	// loc, err := time.LoadLocation("Asia/Hong_Kong")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	loc, err := time.LoadLocation("Asia/Hong_Kong")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 
+	current_time := time.Now()
 	departures := jsonResponse.Data
 
 	// sort by arrival time
@@ -78,9 +81,18 @@ func kmb_bus_times(stop_id string) []busTime {
 			// fmt.Println()
 			// fmt.Println()
 			// fmt.Println()
+			eta, err := time.ParseInLocation("2006-01-02T15:04:05+08:00", departure.Eta, loc)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
 
-			busTimes = append(busTimes, busTime{eta: departure.Eta, routeNo: departure.Route, destinationName: departure.DestEn})
+			waitTime := time.Time.Sub(eta, current_time).Truncate(time.Minute)
 
+			newBusTime := busTime{Eta: departure.Eta, RouteNo: departure.Route, DestinationName: departure.DestEn, WaitTime: waitTime}
+			if !slices.Contains(busTimes, newBusTime) {
+				busTimes = append(busTimes, newBusTime)
+			}
 			// 	eta, err := time.ParseInLocation("2006-01-02T15:04:05+08:00", departure.Eta, loc)
 			// 	if err != nil {
 			// 		fmt.Println(err)

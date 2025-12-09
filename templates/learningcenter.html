@@ -4,14 +4,14 @@
     <link rel="stylesheet" type="text/css" href="../static/styles.css">
 </head>
 <body>
-    <h1>Tso Wo Hang:</h1>
+    <h1>Sha Kok Mei:</h1>
     <table>
         <tr>
             <th>Route No</th>
             <th>Destination Name</th>
             <th>ETA</th>
         </tr>
-        {{ range .TsoWoHang }}
+        {{ range .ShaKokMei }}
             <tr>
                 <td>{{.RouteNo}}</td>
                 <td>{{.DestinationName}}</td>
@@ -19,14 +19,15 @@
             </tr>
         {{ end }}
     </table>
-    <h1>Mak Pin:</h1>
+    <h1>Hong Kong Academy:</h1>
+    <h3>(8 min walk)</h3>
     <table>
         <tr>
             <th>Route No</th>
             <th>Destination Name</th>
             <th>ETA</th>
         </tr>
-        {{ range .MakPin }}
+        {{ range .HongKongAcademy }}
             <tr>
                 <td>{{.RouteNo}}</td>
                 <td>{{.DestinationName}}</td>
