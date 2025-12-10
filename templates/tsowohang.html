@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+</head>
+<body>
+    <h1>Tso Wo Hang:</h1>
+    <table>
+        <tr>
+            <th>Route No</th>
+            <th>Destination Name</th>
+            <th>ETA</th>
+        </tr>
+        {{ range .TsoWoHang }}
+            <tr>
+                <td>{{.RouteNo}}</td>
+                <td>{{.DestinationName}}</td>
+                <td>{{.WaitTime}}</td>
+            </tr>
+        {{ end }}
+    </table>
+    <h1>Mak Pin:</h1>
+    <table>
+        <tr>
+            <th>Route No</th>
+            <th>Destination Name</th>
+            <th>ETA</th>
+        </tr>
+        {{ range .MakPin }}
+            <tr>
+                <td>{{.RouteNo}}</td>
+                <td>{{.DestinationName}}</td>
+                <td>{{.WaitTime}}</td>
+            </tr>
+        {{ end }}
+    </table>
+</body>
+</html>

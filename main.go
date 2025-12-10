@@ -17,6 +17,8 @@ func main() {
 	// handle routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
+	mux.HandleFunc("/tsowohang", handleTsoWoHang)
+	mux.HandleFunc("/learningcenter", handleLearningCenter)
 
 	// Start the server
 	err = http.ListenAndServe(":4001", mux)
