@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -25,7 +24,5 @@ func main() {
 	err = http.ListenAndServe(":4001", mux)
 	if err != nil {
 		log.Fatal("Error occurred while starting the server:", err)
-	} else {
-		fmt.Println("Listening....")
 	}
 }

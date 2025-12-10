@@ -17,8 +17,7 @@ type busTime struct {
 }
 
 func kmb_bus_times(stop_id string) []busTime {
-	url := fmt.Sprintf("https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/%s", stop_id)
-	resp, err := http.Get(url)
+	resp, err := http.Get(fmt.Sprintf("https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/%s", stop_id))
 
 	if err != nil {
 		log.Fatalln(err)
@@ -77,10 +76,6 @@ func kmb_bus_times(stop_id string) []busTime {
 
 	for _, departure := range departures {
 		if departure.Eta != "" {
-			// fmt.Println(departure)
-			// fmt.Println()
-			// fmt.Println()
-			// fmt.Println()
 			eta, err := time.ParseInLocation("2006-01-02T15:04:05+08:00", departure.Eta, loc)
 			if err != nil {
 				fmt.Println(err)
@@ -90,16 +85,10 @@ func kmb_bus_times(stop_id string) []busTime {
 			waitTime := time.Time.Sub(eta, current_time).Truncate(time.Minute)
 
 			newBusTime := busTime{Eta: departure.Eta, RouteNo: departure.Route, DestinationName: departure.DestEn, WaitTime: waitTime}
-			if !slices.Contains(busTimes, newBusTime) {
+			if !slices.Contains(busTimes, newBusTime) { // Remove any duplicates returned by KMB
 				busTimes = append(busTimes, newBusTime)
 			}
-			// 	eta, err := time.ParseInLocation("2006-01-02T15:04:05+08:00", departure.Eta, loc)
-			// 	if err != nil {
-			// 		fmt.Println(err)
-			// 		return
-			// 	}
-			// 	waitTime := time.Time.Sub(eta, current_time).Truncate(time.Minute)
-			// 	fmt.Printf("%4s: %5s (%s)\n", departure.Route, waitTime, eta.Format("15:04"))
+
 		}
 	}
 
