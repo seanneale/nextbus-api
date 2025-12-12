@@ -7,30 +7,14 @@
     <a href="/tsowohang">Tso Wo Hang</a>
     <a href="/learningcenter">Learning Center</a>
     <a href="/akungkok">A Kung Kok</a>
-    <h1>Sha Kok Mei:</h1>
+    <h1>A Kung Kok:</h1>
     <table>
         <tr>
             <th>Route No</th>
             <th>Destination Name</th>
             <th>ETA</th>
         </tr>
-        {{ range .ShaKokMei }}
-            <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
-            </tr>
-        {{ end }}
-    </table>
-    <h1>Hong Kong Academy:</h1>
-    <h3>(8 min walk)</h3>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .HongKongAcademy }}
+        {{ range .AKungKok }}
             <tr>
                 <td>{{.RouteNo}}</td>
                 <td>{{.DestinationName}}</td>
