@@ -22,8 +22,12 @@ func main() {
 	mux.HandleFunc("/akungkok", handleAKungKok)
 
 	// Start the server
-	err = http.ListenAndServe(":4001", mux)
-	if err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
+
+	err := http.ListenAndServe(":"+port, mux)	if err != nil {
 		log.Fatal("Error occurred while starting the server:", err)
 	}
 }
