@@ -10,9 +10,12 @@ import (
 
 func main() {
 	// load env file
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
+
+	if os.Getenv("GO_ENV") != "heroku" {
+		err := godotenv.Load()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// handle routes
@@ -28,7 +31,7 @@ func main() {
 		port = "4000"
 	}
 
-	err = http.ListenAndServe(":"+port, mux)
+	err := http.ListenAndServe(":"+port, mux)
 	if err != nil {
 		log.Fatal("Error occurred while starting the server:", err)
 	}
