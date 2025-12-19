@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -27,7 +28,8 @@ func main() {
 		port = "4000"
 	}
 
-	err := http.ListenAndServe(":"+port, mux)	if err != nil {
+	err = http.ListenAndServe(":"+port, mux)
+	if err != nil {
 		log.Fatal("Error occurred while starting the server:", err)
 	}
 }
