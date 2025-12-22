@@ -25,7 +25,7 @@ func handleTsoWoHang(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tmpl.Execute(w, response{TsoWoHang: kmb_bus_times([]string{"B959226950B0DEA7"}), MakPin: kmb_bus_times([]string{"B2F4485FA517FEED"})})
+	err = tmpl.Execute(w, response{TsoWoHang: kmb_bus_times([]string{"B959226950B0DEA7"}), MakPin: kmb_bus_times([]string{"B2F4485FA517FEED", "C7548A3C37ADC1AA"})})
 	if err != nil {
 		return
 	}
