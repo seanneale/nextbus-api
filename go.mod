@@ -2,4 +2,7 @@ module github.com/seanneale/nextbus-api
 
 go 1.25.4
 
-require github.com/joho/godotenv v1.5.1 // indirect
+require (
+	github.com/joho/godotenv v1.5.1 // indirect
+	gopkg.in/dnaeon/go-vcr.v4 v4.0.6 // indirect
+)
