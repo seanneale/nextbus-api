@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
@@ -8,34 +8,42 @@
     <div><a href="/learningcenter">Learning Center</a></div>
     <div><a href="/akungkok">A Kung Kok</a></div>
     <h1>Sha Kok Mei:</h1>
-    <table class="table">
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .ShaKokMei }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th scope="col">Route No</th>
+                <th scope="col">Destination Name</th>
+                <th scope="col">ETA</th>
             </tr>
+        </thead>
+        {{ range .ShaKokMei }}
+            <tbody>
+                <tr>
+                    <th scope="row">{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
     <h1>Hong Kong Academy:</h1>
     <h3>(8 min walk)</h3>
-    <table class="table">
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .HongKongAcademy }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th>Route No</th>
+                <th>Destination Name</th>
+                <th>ETA</th>
             </tr>
+        </thead>
+        {{ range .HongKongAcademy }}
+            <tbody>
+                <tr>
+                    <td>{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
 </body>
