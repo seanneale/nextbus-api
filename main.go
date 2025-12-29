@@ -25,6 +25,10 @@ func main() {
 	mux.HandleFunc("/learningcenter", handleLearningCenter)
 	mux.HandleFunc("/akungkok", handleAKungKok)
 
+	kmbRouteStops()
+
+	// fmt.Println(stops[0])
+
 	// Start the server
 	port := os.Getenv("PORT")
 	if port == "" {
