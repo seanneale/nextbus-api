@@ -8,18 +8,22 @@
     <div><a href="/learningcenter">Learning Center</a></div>
     <div><a href="/akungkok">A Kung Kok</a></div>
     <h1>A Kung Kok:</h1>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .AKungKok }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th>Route No</th>
+                <th>Destination Name</th>
+                <th>ETA</th>
             </tr>
+        </thead>
+        {{ range .AKungKok }}
+            <tbody>
+                <tr>
+                    <td>{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
 </body>

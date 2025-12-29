@@ -8,33 +8,41 @@
     <div><a href="/learningcenter">Learning Center</a></div>
     <div><a href="/akungkok">A Kung Kok</a></div>
     <h1>Tso Wo Hang:</h1>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .TsoWoHang }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th>Route No</th>
+                <th>Destination Name</th>
+                <th>ETA</th>
             </tr>
+        </thead>
+        {{ range .TsoWoHang }}
+            <tbody>
+                <tr>
+                    <td>{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
     <h1>Mak Pin:</h1>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .MakPin }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th>Route No</th>
+                <th>Destination Name</th>
+                <th>ETA</th>
             </tr>
+        </thead>
+        {{ range .MakPin }}
+            <tbody>
+                <tr>
+                    <td>{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
 </body>

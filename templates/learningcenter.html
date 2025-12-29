@@ -8,34 +8,42 @@
     <div><a href="/learningcenter">Learning Center</a></div>
     <div><a href="/akungkok">A Kung Kok</a></div>
     <h1>Sha Kok Mei:</h1>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .ShaKokMei }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th scope="col">Route No</th>
+                <th scope="col">Destination Name</th>
+                <th scope="col">ETA</th>
             </tr>
+        </thead>
+        {{ range .ShaKokMei }}
+            <tbody>
+                <tr>
+                    <th scope="row">{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
     <h1>Hong Kong Academy:</h1>
     <h3>(8 min walk)</h3>
-    <table>
-        <tr>
-            <th>Route No</th>
-            <th>Destination Name</th>
-            <th>ETA</th>
-        </tr>
-        {{ range .HongKongAcademy }}
+    <table class="table table-sm table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>{{.RouteNo}}</td>
-                <td>{{.DestinationName}}</td>
-                <td>{{.WaitTime}}</td>
+                <th>Route No</th>
+                <th>Destination Name</th>
+                <th>ETA</th>
             </tr>
+        </thead>
+        {{ range .HongKongAcademy }}
+            <tbody>
+                <tr>
+                    <td>{{.RouteNo}}</td>
+                    <td>{{.DestinationName}}</td>
+                    <td>{{.WaitTime}}</td>
+                </tr>
+            </tbody>
         {{ end }}
     </table>
 </body>
