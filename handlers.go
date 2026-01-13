@@ -45,6 +45,14 @@ func handleAKungKok(w http.ResponseWriter, r *http.Request) {
 	renderFixedTable(tables, w, r)
 }
 
+func handleGoPark(w http.ResponseWriter, r *http.Request) {
+	tables := []Table{
+		{Name: "Tin Liu (Go Park: Toward Ma On Shan)", BusTime: kmb_bus_times([]string{"79B88295548184C1"})},
+		{Name: "Ma Kwu Lam (Go Park: Toward Sai Kung)", BusTime: kmb_bus_times([]string{"C67E139743E66D71"})},
+	}
+	renderFixedTable(tables, w, r)
+}
+
 func renderFixedTable(tables []Table, w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/fixed_table.html")
 	if err != nil {
