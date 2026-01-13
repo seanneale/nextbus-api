@@ -24,6 +24,7 @@ func main() {
 	mux.HandleFunc("/tsowohang", handleTsoWoHang)
 	mux.HandleFunc("/learningcenter", handleLearningCenter)
 	mux.HandleFunc("/akungkok", handleAKungKok)
+	mux.HandleFunc("/gopark", handleGoPark)
 
 	// Start the server
 	port := os.Getenv("PORT")
