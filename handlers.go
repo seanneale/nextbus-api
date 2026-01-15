@@ -60,6 +60,14 @@ func handleWuKaiSha(w http.ResponseWriter, r *http.Request) {
 	renderFixedTable(tables, w, r)
 }
 
+func handleKeiLingHaLoWai(w http.ResponseWriter, r *http.Request) {
+	tables := []Table{
+		{Name: "Kei Ling Ha Lo Wai (Towards Sai Kung)", BusTime: kmb_bus_times([]string{"46E8837F566582D2"})},
+		{Name: "Kei Ling Ha Lo Wai (Towards Ma On Shan)", BusTime: kmb_bus_times([]string{"6BA43C06A9AD502A"})},
+	}
+	renderFixedTable(tables, w, r)
+}
+
 func renderFixedTable(tables []Table, w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/fixed_table.html")
 	if err != nil {
