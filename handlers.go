@@ -53,6 +53,13 @@ func handleGoPark(w http.ResponseWriter, r *http.Request) {
 	renderFixedTable(tables, w, r)
 }
 
+func handleWuKaiSha(w http.ResponseWriter, r *http.Request) {
+	tables := []Table{
+		{Name: "Wu Kai Sha Station", BusTime: kmb_bus_times([]string{"9AD30F8EDBC3F139", "8134FC79F33F203D", "0CB1F7979192FBB2", "541FF05FA053F2B5", "7D54FE486D057070", "91CD1740B6AC752B", "E22B819E638307CC", "BA72214DFE48AA86"})},
+	}
+	renderFixedTable(tables, w, r)
+}
+
 func renderFixedTable(tables []Table, w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/fixed_table.html")
 	if err != nil {
