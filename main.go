@@ -12,6 +12,10 @@ type StopTest struct {
 	Id, Name string
 }
 
+type RouteTest struct {
+	Id, RouteNo string
+}
+
 func main() {
 	var err error
 	// load env file
@@ -44,22 +48,26 @@ func main() {
 		port = "4000"
 	}
 
-	// testing DB connection - CREATE
-	err = DB.QueryRow("INSERT INTO nextbus.stops (name) VALUES ($1)", "becky").Err()
-	if err != nil {
-		log.Printf("error creating data from Postgresql DB: %v", err)
-	}
+	// Build the DB - Uncomment if required
+	PopulateRoutesTable()
 
-	//  testing DB connection - GET ALL
-	rows, err := DB.Query("SELECT id, name FROM nextbus.stops;")
-	if err != nil {
-		log.Printf("error reading data from Postgresql DB: %v", err)
-	}
-	for rows.Next() {
-		var stopTest StopTest
-		rows.Scan(&stopTest.Id, &stopTest.Name)
-		log.Printf("%v", stopTest)
-	}
+	// fmt.Println("testing stops")
+	// // testing DB connection - CREATE
+	// err = DB.QueryRow("INSERT INTO nextbus.stops (name) VALUES ($1)", "becky").Err()
+	// if err != nil {
+	// 	log.Printf("error creating data from Postgresql DB: %v", err)
+	// }
+
+	// //  testing DB connection - GET ALL
+	// rows, err := DB.Query("SELECT id, name FROM nextbus.stops;")
+	// if err != nil {
+	// 	log.Printf("error reading data from Postgresql DB: %v", err)
+	// }
+	// for rows.Next() {
+	// 	var stopTest StopTest
+	// 	rows.Scan(&stopTest.Id, &stopTest.Name)
+	// 	log.Printf("%v", stopTest)
+	// }
 
 	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {
