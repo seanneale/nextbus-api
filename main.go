@@ -8,15 +8,29 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	// load env file
+type StopTest struct {
+	Id, Name string
+}
 
+type RouteTest struct {
+	Id, RouteNo string
+}
+
+func main() {
+	var err error
+	// load env file
 	if os.Getenv("GO_ENV") != "heroku" {
-		err := godotenv.Load()
+		err = godotenv.Load()
 		if err != nil {
 			panic(err)
 		}
 	}
+
+	err = OpenDatabase()
+	if err != nil {
+		log.Printf("error connecting to Postgresql DB: %v", err)
+	}
+	defer CloseDatabase()
 
 	// handle routes
 	mux := http.NewServeMux()
@@ -34,7 +48,15 @@ func main() {
 		port = "4000"
 	}
 
-	err := http.ListenAndServe(":"+port, mux)
+	// Build the following DB tables - Uncomment if required
+	// - Routes
+	// - Stops
+	// - RouteStops (Join the tables together)
+	// PopulateRoutesTable()
+	// PopulateStopsTable()
+	// PopulateRouteStopsTable()
+
+	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {
 		log.Fatal("Error occurred while starting the server:", err)
 	}
