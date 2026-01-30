@@ -48,26 +48,13 @@ func main() {
 		port = "4000"
 	}
 
-	// Build the DB - Uncomment if required
-	PopulateRoutesTable()
-
-	// fmt.Println("testing stops")
-	// // testing DB connection - CREATE
-	// err = DB.QueryRow("INSERT INTO nextbus.stops (name) VALUES ($1)", "becky").Err()
-	// if err != nil {
-	// 	log.Printf("error creating data from Postgresql DB: %v", err)
-	// }
-
-	// //  testing DB connection - GET ALL
-	// rows, err := DB.Query("SELECT id, name FROM nextbus.stops;")
-	// if err != nil {
-	// 	log.Printf("error reading data from Postgresql DB: %v", err)
-	// }
-	// for rows.Next() {
-	// 	var stopTest StopTest
-	// 	rows.Scan(&stopTest.Id, &stopTest.Name)
-	// 	log.Printf("%v", stopTest)
-	// }
+	// Build the following DB tables - Uncomment if required
+	// - Routes
+	// - Stops
+	// - RouteStops (Join the tables together)
+	// PopulateRoutesTable()
+	// PopulateStopsTable()
+	// PopulateRouteStopsTable()
 
 	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {

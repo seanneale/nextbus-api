@@ -26,3 +26,19 @@ CREATE TABLE IF NOT EXISTS nextbus.routes
     "dest_tc" text COLLATE pg_catalog."default",
     CONSTRAINT routes_pkey PRIMARY KEY (id)
 )
+
+CREATE TABLE IF NOT EXISTS nextbus.routestops
+(
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    route_id uuid NOT NULL,
+    stop_id uuid NOT NULL,
+    CONSTRAINT routestops_pkey PRIMARY KEY (id),
+    CONSTRAINT route_id FOREIGN KEY (route_id)
+        REFERENCES nextbus.routes (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT stop_id FOREIGN KEY (stop_id)
+        REFERENCES nextbus.stops (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
