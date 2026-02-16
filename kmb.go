@@ -114,6 +114,7 @@ func kmb_route_list() []route {
 	var routes []route
 
 	resp, err := http.Get("https://data.etabus.gov.hk/v1/transport/kmb/route/")
+
 	if err != nil {
 		log.Fatalln(err)
 	}

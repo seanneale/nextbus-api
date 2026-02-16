@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"slices"
 	"strings"
 
 	_ "github.com/lib/pq" // what does _ do?
@@ -55,12 +56,27 @@ func PopulateRoutesTable() {
 
 func PopulateStopsTable() {
 	stops := kmbStopList()
-	// TODO: Add back chinese names
+
+	// Grouping together stops with the same lat and long so they can be treated as one
+	groupedStopsByLatLong := make(map[string]stopInfo)
+
+	for _, stop := range stops {
+		key := fmt.Sprintf("%f,%f", stop.Latitude, stop.Longitude)
+		if _, exists := groupedStopsByLatLong[key]; exists {
+			existingStop := groupedStopsByLatLong[key]
+			existingStop.KmbStopId += fmt.Sprintf(",%s", stop.KmbStopId)
+			groupedStopsByLatLong[key] = existingStop
+		} else {
+			groupedStopsByLatLong[key] = stop
+		}
+	}
+
+	// Large amount of data being inserted so using a single query to avoid multiple round trips to the database
 	sql_string := "INSERT INTO nextbus.stops (name, kmb_stop_id, kmb_name_en, kmb_name_sc, kmb_name_tc, latitude, longitude) VALUES"
 	var sql_strings []string
 
 	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
-	for _, stop := range stops {
+	for _, stop := range groupedStopsByLatLong {
 		// Update naming convertion
 		name := replacer.Replace(stop.KmbNameEn)
 		sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', %f, %f)", name, stop.KmbStopId, replacer.Replace(stop.KmbNameEn), stop.KmbNameSc, stop.KmbNameTc, stop.Latitude, stop.Longitude))
@@ -103,12 +119,14 @@ func PopulateRouteStopsTable() {
 	var sql_strings []string
 
 	var routeStopInfos []RouteStopInfo
-	fmt.Println(routeStops)
+
 	for _, routeStop := range routeStops {
 		var routeStopInfo RouteStopInfo
 
 		for _, stop := range allStops {
-			if stop.KmbStopId == routeStop.KmbStopId {
+			stopIds := strings.Split(stop.KmbStopId, ",")
+
+			if slices.Contains(stopIds, stop.KmbStopId) {
 				routeStopInfo.StopId = stop.Id
 				// TODO: Move to method and return a value
 			}
