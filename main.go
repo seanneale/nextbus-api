@@ -52,9 +52,10 @@ func main() {
 	// - Routes
 	// - Stops
 	// - RouteStops (Join the tables together)
-	// PopulateRoutesTable()
+	// PopulateKmbRoutesTable()
 	// PopulateStopsTable()
 	// PopulateRouteStopsTable()
+	PopulateGmbRoutesTable()
 
 	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {

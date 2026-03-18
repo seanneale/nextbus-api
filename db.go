@@ -38,7 +38,7 @@ func CloseDatabase() error {
 	return DB.Close()
 }
 
-func PopulateRoutesTable() {
+func PopulateKmbRoutesTable() {
 	routes := kmb_route_list()
 	// TODO: Add back chinese names
 	sql_string := "INSERT INTO nextbus.routes (route_no, company, bound, service_type, orig_en, dest_en) VALUES"
@@ -148,4 +148,8 @@ func PopulateRouteStopsTable() {
 		log.Printf("error creating data from Postgresql DB: %v", err)
 	}
 	fmt.Println(routeStopInfos)
+}
+
+func PopulateGmbRoutesTable() {
+	gmbRouteList()
 }
