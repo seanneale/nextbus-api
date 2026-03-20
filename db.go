@@ -38,7 +38,7 @@ func CloseDatabase() error {
 	return DB.Close()
 }
 
-func PopulateRoutesTable() {
+func PopulateKmbRoutesTable() {
 	routes := kmb_route_list()
 	// TODO: Add back chinese names
 	sql_string := "INSERT INTO nextbus.routes (route_no, company, bound, service_type, orig_en, dest_en) VALUES"
@@ -148,4 +148,20 @@ func PopulateRouteStopsTable() {
 		log.Printf("error creating data from Postgresql DB: %v", err)
 	}
 	fmt.Println(routeStopInfos)
+}
+
+func PopulateGmbRoutesTable() {
+	routes := gmbRouteList()
+	// TODO: Add back chinese names
+	sql_string := "INSERT INTO nextbus.routes (route_no, company, bound, orig_en, dest_en, region, description_en, gmb_route_id) VALUES"
+	var sql_strings []string
+	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
+	for _, route := range routes {
+		sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", route.RouteNo, route.Company, route.Bound, replacer.Replace(route.OrigEn), replacer.Replace(route.DestEn), route.Region, replacer.Replace(route.DescriptionEn), route.GmbRouteId))
+	}
+	sql_string += strings.Join(sql_strings, ",")
+	err := DB.QueryRow(sql_string).Err()
+	if err != nil {
+		log.Printf("error creating data from Postgresql DB: %v", err)
+	}
 }

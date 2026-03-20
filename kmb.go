@@ -18,8 +18,8 @@ type busTime struct {
 }
 
 type route struct {
-	RouteNo, Company, Bound, OrigEn, OrigSc, OrigTc, DestEn, DestSc, DestTc string
-	ServiceType                                                             int
+	RouteNo, Company, Bound, OrigEn, OrigSc, OrigTc, DestEn, DestSc, DestTc, DescriptionEn, DescriptionSc, DescriptionTc, Region string
+	ServiceType, GmbRouteId                                                                                                      int
 }
 
 type stopInfo struct {

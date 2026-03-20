@@ -17,13 +17,16 @@ CREATE TABLE IF NOT EXISTS nextbus.routes
     "route_no" text COLLATE pg_catalog."default" NOT NULL,
     company text COLLATE pg_catalog."default" NOT NULL,
     bound text COLLATE pg_catalog."default" NOT NULL,
-    "service_type" smallint NOT NULL,
+    service_type smallint,
     "orig_en" text COLLATE pg_catalog."default" NOT NULL,
     "orig_sc" text COLLATE pg_catalog."default",
     "orig_tc" text COLLATE pg_catalog."default",
     "dest_en" text COLLATE pg_catalog."default" NOT NULL,
     "dest_sc" text COLLATE pg_catalog."default",
     "dest_tc" text COLLATE pg_catalog."default",
+    gmb_route_id text COLLATE pg_catalog."default",
+    region text COLLATE pg_catalog."default",
+    description_en text COLLATE pg_catalog."default",
     CONSTRAINT routes_pkey PRIMARY KEY (id)
 )
 
