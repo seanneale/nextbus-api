@@ -130,7 +130,6 @@ func gmbRouteList() []route {
 				}
 
 			}
-			// time.Sleep(15 * time.Second)
 		}
 	}
 
