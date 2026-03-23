@@ -18,7 +18,7 @@ type StopInfo struct {
 }
 
 type RouteInfo struct {
-	Id, RouteNo, Bound, ServiceType, Company string
+	Id, RouteNo, Bound, ServiceType, Company, GmbRouteId string
 }
 
 type RouteStopInfo struct {
@@ -164,4 +164,27 @@ func PopulateGmbRoutesTable() {
 	if err != nil {
 		log.Printf("error creating data from Postgresql DB: %v", err)
 	}
+}
+
+func PopulateGmbStopsTable() {
+	// The GMB API does not return all stops from one endpoint like the KMB API
+	// We need to request the stops for each route, then group the ones with the same stop id to request data about individually.
+
+	// Retrieve RouteID and Sequence Type from DB
+	routeRows, err := DB.Query("SELECT id, route_no, bound, gmb_route_id FROM nextbus.routes WHERE company='GMB';")
+	if err != nil {
+		log.Printf("error reading data from Postgresql DB: %v", err)
+	}
+	var allRoutes []RouteInfo
+	for routeRows.Next() {
+		var routeInfo RouteInfo
+
+		routeRows.Scan(&routeInfo.Id, &routeInfo.RouteNo, &routeInfo.Bound, &routeInfo.GmbRouteId)
+		allRoutes = append(allRoutes, routeInfo)
+	}
+
+	// Retrive stop data for each route
+	routeStops, stops := gmbRouteStopList(allRoutes)
+	fmt.Println(routeStops)
+	fmt.Println(stops)
 }

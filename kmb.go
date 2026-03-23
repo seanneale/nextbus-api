@@ -23,12 +23,12 @@ type route struct {
 }
 
 type stopInfo struct {
-	KmbStopId, KmbNameEn, KmbNameTc, KmbNameSc string
-	Latitude, Longitude                        float64
+	KmbStopId, KmbNameEn, KmbNameTc, KmbNameSc, GmbStopId, GmbNameEn, GmbNameTc, GmbNameSc string
+	Latitude, Longitude                                                                    float64
 }
 
 type routeStopInfo struct {
-	RouteNo, Bound, ServiceType, Seq, KmbStopId, Name string
+	RouteNo, Bound, ServiceType, Seq, KmbStopId, Name, GmbStopId string
 }
 
 func kmb_bus_times(stop_ids []string) []busTime {
