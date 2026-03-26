@@ -22,13 +22,18 @@ type route struct {
 	ServiceType, GmbRouteId                                                                                                      int
 }
 
+// potential naming clash with StopInfo in db.go
 type stopInfo struct {
 	KmbStopId, KmbNameEn, KmbNameTc, KmbNameSc, GmbStopId, GmbNameEn, GmbNameTc, GmbNameSc string
 	Latitude, Longitude                                                                    float64
 }
 
+type stopInfoKey struct {
+	GmbStopId string
+}
+
 type routeStopInfo struct {
-	RouteNo, Bound, ServiceType, Seq, KmbStopId, Name, GmbStopId string
+	RouteNo, Bound, ServiceType, Seq, KmbStopId, Name, GmbStopId, GmbRouteId string
 }
 
 func kmb_bus_times(stop_ids []string) []busTime {

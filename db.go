@@ -13,8 +13,10 @@ import (
 
 var DB *sql.DB
 
+// potential naming clash with stopInfo in kmb.go
 type StopInfo struct {
-	Id, KmbStopId string
+	Id, KmbStopId       string
+	Latitude, Longitude float64
 }
 
 type RouteInfo struct {
@@ -184,7 +186,45 @@ func PopulateGmbStopsTable() {
 	}
 
 	// Retrive stop data for each route
-	routeStops, stops := gmbRouteStopList(allRoutes)
-	fmt.Println(routeStops)
-	fmt.Println(stops)
+	routeStops, newStops := gmbRouteStopList(allRoutes)
+
+	// Retrieve lat/long for stops from Stops API
+	newStops = gmbStopLatLongList(newStops)
+	fmt.Println(routeStops[0])
+	fmt.Println(newStops[0])
+
+	// Retrieve existing stops from DB
+	existingStops := retrieveExistingStopsFromDb()
+
+	for _, existStop := range existingStops {
+		for _, gmbStop := range newStops {
+			if existStop.Latitude == gmbStop.Latitude {
+				// update the existing stop to include the GmbStopId
+				break
+			} else {
+				// append to the stop info to the sql string to be created in the DB later
+			}
+		}
+	}
+
+	_, err = fmt.Fprintf(file, "FINISHED\n")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func retrieveExistingStopsFromDb() []StopInfo {
+	stopRows, err := DB.Query("SELECT id, latitude, longitude FROM nextbus.stops;")
+	if err != nil {
+		log.Printf("error reading data from Postgresql DB: %v", err)
+	}
+	var existingStops []StopInfo
+	for stopRows.Next() {
+		var stopInfo StopInfo
+
+		stopRows.Scan(&stopInfo.Id, &stopInfo.Latitude, &stopInfo.Longitude)
+		existingStops = append(existingStops, stopInfo)
+	}
+
+	return existingStops
 }
