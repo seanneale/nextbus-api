@@ -7,6 +7,7 @@ import (
 	"log"
 	"slices"
 	"strings"
+	"time"
 
 	_ "github.com/lib/pq" // what does _ do?
 )
@@ -43,17 +44,14 @@ func CloseDatabase() error {
 func PopulateKmbRoutesTable() {
 	routes := kmb_route_list()
 	// TODO: Add back chinese names
-	sql_string := "INSERT INTO nextbus.routes (route_no, company, bound, service_type, orig_en, dest_en) VALUES"
-	var sql_strings []string
+	sqlString := "INSERT INTO nextbus.routes (route_no, company, bound, service_type, orig_en, dest_en) VALUES"
+	var sqlStrings []string
 	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
 	for _, route := range routes {
-		sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s', '%s', %d, '%s', '%s')", route.RouteNo, route.Company, route.Bound, route.ServiceType, replacer.Replace(route.OrigEn), replacer.Replace(route.DestEn)))
+		sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s', '%s', %d, '%s', '%s')", route.RouteNo, route.Company, route.Bound, route.ServiceType, replacer.Replace(route.OrigEn), replacer.Replace(route.DestEn)))
 	}
-	sql_string += strings.Join(sql_strings, ",")
-	err := DB.QueryRow(sql_string).Err()
-	if err != nil {
-		log.Printf("error creating data from Postgresql DB: %v", err)
-	}
+	sqlString += strings.Join(sqlStrings, ",")
+	writeToDb(sqlString)
 }
 
 func PopulateStopsTable() {
@@ -74,20 +72,17 @@ func PopulateStopsTable() {
 	}
 
 	// Large amount of data being inserted so using a single query to avoid multiple round trips to the database
-	sql_string := "INSERT INTO nextbus.stops (name, kmb_stop_id, kmb_name_en, kmb_name_sc, kmb_name_tc, latitude, longitude) VALUES"
-	var sql_strings []string
+	sqlString := "INSERT INTO nextbus.stops (name, kmb_stop_id, kmb_name_en, kmb_name_sc, kmb_name_tc, latitude, longitude) VALUES"
+	var sqlStrings []string
 
 	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
 	for _, stop := range groupedStopsByLatLong {
 		// Update naming convertion
 		name := replacer.Replace(stop.KmbNameEn)
-		sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', %f, %f)", name, stop.KmbStopId, replacer.Replace(stop.KmbNameEn), stop.KmbNameSc, stop.KmbNameTc, stop.Latitude, stop.Longitude))
+		sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', %f, %f)", name, stop.KmbStopId, replacer.Replace(stop.KmbNameEn), stop.KmbNameSc, stop.KmbNameTc, stop.Latitude, stop.Longitude))
 	}
-	sql_string += strings.Join(sql_strings, ",")
-	err := DB.QueryRow(sql_string).Err()
-	if err != nil {
-		log.Printf("error creating data from Postgresql DB: %v", err)
-	}
+	sqlString += strings.Join(sqlStrings, ",")
+	writeToDb(sqlString)
 }
 
 func PopulateRouteStopsTable() {
@@ -117,10 +112,8 @@ func PopulateRouteStopsTable() {
 		allStops = append(allStops, stopInfo)
 	}
 
-	sql_string := "INSERT INTO nextbus.routestops (route_id, stop_id) VALUES"
-	var sql_strings []string
-
-	var routeStopInfos []RouteStopInfo
+	sqlString := "INSERT INTO nextbus.routestops (route_id, stop_id) VALUES"
+	var sqlStrings []string
 
 	for _, routeStop := range routeStops {
 		var routeStopInfo RouteStopInfo
@@ -141,31 +134,24 @@ func PopulateRouteStopsTable() {
 			}
 		}
 		if routeStopInfo.RouteId != "" && routeStopInfo.StopId != "" {
-			sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s')", routeStopInfo.RouteId, routeStopInfo.StopId))
+			sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s')", routeStopInfo.RouteId, routeStopInfo.StopId))
 		}
 	}
-	sql_string += strings.Join(sql_strings, ",")
-	err = DB.QueryRow(sql_string).Err()
-	if err != nil {
-		log.Printf("error creating data from Postgresql DB: %v", err)
-	}
-	fmt.Println(routeStopInfos)
+	sqlString += strings.Join(sqlStrings, ",")
+	writeToDb(sqlString)
 }
 
 func PopulateGmbRoutesTable() {
 	routes := gmbRouteList()
 	// TODO: Add back chinese names
-	sql_string := "INSERT INTO nextbus.routes (route_no, company, bound, orig_en, dest_en, region, description_en, gmb_route_id) VALUES"
-	var sql_strings []string
+	sqlString := "INSERT INTO nextbus.routes (route_no, company, bound, orig_en, dest_en, region, description_en, gmb_route_id) VALUES"
+	var sqlStrings []string
 	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
 	for _, route := range routes {
-		sql_strings = append(sql_strings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", route.RouteNo, route.Company, route.Bound, replacer.Replace(route.OrigEn), replacer.Replace(route.DestEn), route.Region, replacer.Replace(route.DescriptionEn), route.GmbRouteId))
+		sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", route.RouteNo, route.Company, route.Bound, replacer.Replace(route.OrigEn), replacer.Replace(route.DestEn), route.Region, replacer.Replace(route.DescriptionEn), route.GmbRouteId))
 	}
-	sql_string += strings.Join(sql_strings, ",")
-	err := DB.QueryRow(sql_string).Err()
-	if err != nil {
-		log.Printf("error creating data from Postgresql DB: %v", err)
-	}
+	sqlString += strings.Join(sqlStrings, ",")
+	writeToDb(sqlString)
 }
 
 func PopulateGmbStopsTable() {
@@ -173,20 +159,36 @@ func PopulateGmbStopsTable() {
 	// We need to request the stops for each route, then group the ones with the same stop id to request data about individually.
 
 	// Retrieve RouteID and Sequence Type from DB
+	fmt.Println(time.Now(), "retreiveGmbRouteDataFromDb")
 	allRoutes := retreiveGmbRouteDataFromDb()
 
 	// Retrive stop data for each route
 	// routeStops
-	_, newStops := gmbRouteStopList(allRoutes)
+	fmt.Println(time.Now(), "gmbRouteStopList")
+	newRouteStops, newStops := gmbRouteStopList(allRoutes)
 
 	// Retrieve lat/long for stops from Stops API
+	fmt.Println(time.Now(), "gmbStopLatLongList")
 	newStops = gmbStopLatLongList(newStops)
 
 	// Retrieve existing stops from DB
-	existingStops := retrieveExistingStopsFromDb()
+	// for GMB there's only unmatched stops, so we can skip this step for now
+	// fmt.Println(time.Now(), "retrieveExistingStopsFromDb")
+	// existingStops := retrieveExistingStopsFromDb()
 
-	findMatchingStops(existingStops, newStops)
+	// find GMB stops with the same lat/long as the stops already in the DB
+	// for GMB there's only unmatched stops, so we can skip this step for now
+	// fmt.Println(time.Now(), "findMatchingStops")
+	// unmatchedStops := findMatchingStops(existingStops, newStops)
 
+	// insert stops into DB
+	fmt.Println(time.Now(), "insertNewStopsIntoDB")
+	insertNewStopsIntoDB(newStops)
+
+	fmt.Println(time.Now(), "insertNewRouteStopsIntoDb")
+	insertNewRouteStopsIntoDb(newRouteStops)
+
+	fmt.Println(time.Now(), "FINISHED")
 }
 
 func retreiveGmbRouteDataFromDb() []RouteInfo {
@@ -221,7 +223,8 @@ func retrieveExistingStopsFromDb() []StopInfo {
 	return existingStops
 }
 
-func findMatchingStops(existingStops []StopInfo, newStops []stopInfo) {
+func findMatchingStops(existingStops []StopInfo, newStops []stopInfo) []stopInfo {
+	var unmatchedStops []stopInfo
 	for _, existStop := range existingStops {
 		for _, newStop := range newStops {
 			if existStop.Latitude == newStop.Latitude && existStop.Longitude == newStop.Longitude {
@@ -230,7 +233,49 @@ func findMatchingStops(existingStops []StopInfo, newStops []stopInfo) {
 				break
 			} else {
 				// append the stop info to the sql string to be created in the DB later
+				unmatchedStops = append(unmatchedStops, newStop)
 			}
 		}
+	}
+
+	return unmatchedStops
+}
+
+func insertNewStopsIntoDB(newStops []stopInfo) {
+	groupedStopsByLatLong := make(map[string]stopInfo)
+
+	for _, stop := range newStops {
+		key := fmt.Sprintf("%f,%f", stop.Latitude, stop.Longitude)
+		if _, exists := groupedStopsByLatLong[key]; exists {
+			existingStop := groupedStopsByLatLong[key]
+			existingStop.GmbStopId += fmt.Sprintf(",%s", stop.GmbStopId)
+			groupedStopsByLatLong[key] = existingStop
+		} else {
+			groupedStopsByLatLong[key] = stop
+		}
+	}
+
+	// Large amount of data being inserted so using a single query to avoid multiple round trips to the database
+	sqlString := "INSERT INTO nextbus.stops (name, gmb_stop_id, gmb_name_en, gmb_name_sc, gmb_name_tc, latitude, longitude) VALUES"
+	var sqlStrings []string
+
+	replacer := strings.NewReplacer("(", "[", ")", "]", "'", "")
+	for _, stop := range groupedStopsByLatLong {
+		// Update naming convertion
+		name := replacer.Replace(stop.GmbNameEn)
+		sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s', '%s', '%s', '%s', %f, %f)", name, stop.GmbStopId, replacer.Replace(stop.GmbNameEn), replacer.Replace(stop.GmbNameSc), replacer.Replace(stop.GmbNameTc), stop.Latitude, stop.Longitude))
+	}
+	sqlString += strings.Join(sqlStrings, ",")
+	writeToDb(sqlString)
+}
+
+func insertNewRouteStopsIntoDb(routeStops []routeStopInfo) {
+
+}
+
+func writeToDb(sqlString string) {
+	err := DB.QueryRow(sqlString).Err()
+	if err != nil {
+		log.Printf("error creating data from Postgresql DB: %v", err)
 	}
 }
