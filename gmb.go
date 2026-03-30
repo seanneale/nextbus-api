@@ -161,8 +161,7 @@ func gmbRouteStopList(allRoutes []RouteInfo) ([]routeStopInfo, []stopInfo) {
 	var routeStopInfos []routeStopInfo
 	var stopInfos []stopInfo
 
-	for _, routeInfo := range allRoutes[:3] {
-		fmt.Println(routeInfo.GmbRouteId)
+	for _, routeInfo := range allRoutes {
 		resp, err := http.Get(fmt.Sprintf("https://data.etagmb.gov.hk/route-stop/%s/%d", routeInfo.GmbRouteId, getRouteSeq(routeInfo.Bound)))
 
 		if err != nil {

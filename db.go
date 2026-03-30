@@ -173,6 +173,23 @@ func PopulateGmbStopsTable() {
 	// We need to request the stops for each route, then group the ones with the same stop id to request data about individually.
 
 	// Retrieve RouteID and Sequence Type from DB
+	allRoutes := retreiveGmbRouteDataFromDb()
+
+	// Retrive stop data for each route
+	// routeStops
+	_, newStops := gmbRouteStopList(allRoutes)
+
+	// Retrieve lat/long for stops from Stops API
+	newStops = gmbStopLatLongList(newStops)
+
+	// Retrieve existing stops from DB
+	existingStops := retrieveExistingStopsFromDb()
+
+	findMatchingStops(existingStops, newStops)
+
+}
+
+func retreiveGmbRouteDataFromDb() []RouteInfo {
 	routeRows, err := DB.Query("SELECT id, route_no, bound, gmb_route_id FROM nextbus.routes WHERE company='GMB';")
 	if err != nil {
 		log.Printf("error reading data from Postgresql DB: %v", err)
@@ -185,32 +202,7 @@ func PopulateGmbStopsTable() {
 		allRoutes = append(allRoutes, routeInfo)
 	}
 
-	// Retrive stop data for each route
-	routeStops, newStops := gmbRouteStopList(allRoutes)
-
-	// Retrieve lat/long for stops from Stops API
-	newStops = gmbStopLatLongList(newStops)
-	fmt.Println(routeStops[0])
-	fmt.Println(newStops[0])
-
-	// Retrieve existing stops from DB
-	existingStops := retrieveExistingStopsFromDb()
-
-	for _, existStop := range existingStops {
-		for _, gmbStop := range newStops {
-			if existStop.Latitude == gmbStop.Latitude {
-				// update the existing stop to include the GmbStopId
-				break
-			} else {
-				// append to the stop info to the sql string to be created in the DB later
-			}
-		}
-	}
-
-	_, err = fmt.Fprintf(file, "FINISHED\n")
-	if err != nil {
-		log.Fatal(err)
-	}
+	return allRoutes
 }
 
 func retrieveExistingStopsFromDb() []StopInfo {
@@ -227,4 +219,18 @@ func retrieveExistingStopsFromDb() []StopInfo {
 	}
 
 	return existingStops
+}
+
+func findMatchingStops(existingStops []StopInfo, newStops []stopInfo) {
+	for _, existStop := range existingStops {
+		for _, newStop := range newStops {
+			if existStop.Latitude == newStop.Latitude && existStop.Longitude == newStop.Longitude {
+				// update the existing stop to include the GmbStopId
+				// no matches for GMB and KMB, to be updated when Citybus are added
+				break
+			} else {
+				// append the stop info to the sql string to be created in the DB later
+			}
+		}
+	}
 }
