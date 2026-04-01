@@ -16,8 +16,8 @@ var DB *sql.DB
 
 // potential naming clash with stopInfo in kmb.go
 type StopInfo struct {
-	Id, KmbStopId       string
-	Latitude, Longitude float64
+	Id, KmbStopId, GmbStopId string
+	Latitude, Longitude      float64
 }
 
 type RouteInfo struct {
@@ -89,7 +89,7 @@ func PopulateRouteStopsTable() {
 	routeStops := kmbRouteStopList()
 
 	// retrieve all routes
-	routeRows, err := DB.Query("SELECT id, route_no, bound, service_type, company FROM nextbus.routes;")
+	routeRows, err := DB.Query("SELECT id, route_no, bound, service_type, company FROM nextbus.routes WHERE company='KMB';")
 	if err != nil {
 		log.Printf("error reading data from Postgresql DB: %v", err)
 	}
@@ -101,7 +101,7 @@ func PopulateRouteStopsTable() {
 	}
 
 	// retrieve all stops
-	stopRows, err := DB.Query("SELECT id, kmb_stop_id FROM nextbus.stops;")
+	stopRows, err := DB.Query("SELECT id, kmb_stop_id FROM nextbus.stops WHERE kmb_stop_id IS NOT NULL;")
 	if err != nil {
 		log.Printf("error reading data from Postgresql DB: %v", err)
 	}
@@ -119,9 +119,10 @@ func PopulateRouteStopsTable() {
 		var routeStopInfo RouteStopInfo
 
 		for _, stop := range allStops {
+			// fmt.Println(stop)
 			stopIds := strings.Split(stop.KmbStopId, ",")
 
-			if slices.Contains(stopIds, stop.KmbStopId) {
+			if slices.Contains(stopIds, routeStop.KmbStopId) {
 				routeStopInfo.StopId = stop.Id
 				// TODO: Move to method and return a value
 			}
@@ -133,12 +134,18 @@ func PopulateRouteStopsTable() {
 				// TODO: Move to method and return a value
 			}
 		}
+
 		if routeStopInfo.RouteId != "" && routeStopInfo.StopId != "" {
 			sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s')", routeStopInfo.RouteId, routeStopInfo.StopId))
 		}
 	}
-	sqlString += strings.Join(sqlStrings, ",")
-	writeToDb(sqlString)
+	if len(sqlStrings) > 0 {
+		sqlString += strings.Join(sqlStrings, ",")
+		fmt.Println(sqlString)
+		writeToDb(sqlString)
+	} else {
+		fmt.Println("none to add at all")
+	}
 }
 
 func PopulateGmbRoutesTable() {
@@ -155,43 +162,57 @@ func PopulateGmbRoutesTable() {
 }
 
 func PopulateGmbStopsTable() {
+	// var newStops []stopInfo
+	// newStops = append(newStops, stopInfo{GmbStopId: "20015593"})
+	// newStops = append(newStops, stopInfo{GmbStopId: "20014456"})
+	// newStops = append(newStops, stopInfo{GmbStopId: "20006938"})
+
+	// fmt.Println(newStops)
 	// The GMB API does not return all stops from one endpoint like the KMB API
 	// We need to request the stops for each route, then group the ones with the same stop id to request data about individually.
 
 	// Retrieve RouteID and Sequence Type from DB
-	fmt.Println(time.Now(), "retreiveGmbRouteDataFromDb")
-	allRoutes := retreiveGmbRouteDataFromDb()
+	fmt.Println(currentTime(), "retrieveGmbRouteDataFromDb")
+	allRoutes := retrieveGmbRouteDataFromDb()
 
 	// Retrive stop data for each route
-	// routeStops
-	fmt.Println(time.Now(), "gmbRouteStopList")
+	fmt.Println(currentTime(), "gmbRouteStopList")
 	newRouteStops, newStops := gmbRouteStopList(allRoutes)
 
 	// Retrieve lat/long for stops from Stops API
-	fmt.Println(time.Now(), "gmbStopLatLongList")
+	fmt.Println(currentTime(), "gmbStopLatLongList")
 	newStops = gmbStopLatLongList(newStops)
 
 	// Retrieve existing stops from DB
 	// for GMB there's only unmatched stops, so we can skip this step for now
-	// fmt.Println(time.Now(), "retrieveExistingStopsFromDb")
+	// fmt.Println(currentTime(), "retrieveExistingStopsFromDb")
 	// existingStops := retrieveExistingStopsFromDb()
 
 	// find GMB stops with the same lat/long as the stops already in the DB
 	// for GMB there's only unmatched stops, so we can skip this step for now
-	// fmt.Println(time.Now(), "findMatchingStops")
+	// fmt.Println(currentTime(), "findMatchingStops")
 	// unmatchedStops := findMatchingStops(existingStops, newStops)
 
 	// insert stops into DB
-	fmt.Println(time.Now(), "insertNewStopsIntoDB")
+	fmt.Println(currentTime(), "insertNewStopsIntoDB")
 	insertNewStopsIntoDB(newStops)
 
-	fmt.Println(time.Now(), "insertNewRouteStopsIntoDb")
-	insertNewRouteStopsIntoDb(newRouteStops)
+	// extract newStops from DB
+	fmt.Println(currentTime(), "extractNewStopsFromDB")
+	newStopsDBInfo := extractNewStopsFromDB(newStops)
 
-	fmt.Println(time.Now(), "FINISHED")
+	fmt.Println(currentTime(), "insertNewRouteStopsIntoDb")
+	insertNewRouteStopsIntoDb(newRouteStops, newStopsDBInfo, allRoutes)
+
+	fmt.Println(currentTime(), "FINISHED")
 }
 
-func retreiveGmbRouteDataFromDb() []RouteInfo {
+func currentTime() string {
+	timeLayout := "15:04"
+	return time.Now().Format(timeLayout)
+}
+
+func retrieveGmbRouteDataFromDb() []RouteInfo {
 	routeRows, err := DB.Query("SELECT id, route_no, bound, gmb_route_id FROM nextbus.routes WHERE company='GMB';")
 	if err != nil {
 		log.Printf("error reading data from Postgresql DB: %v", err)
@@ -269,7 +290,65 @@ func insertNewStopsIntoDB(newStops []stopInfo) {
 	writeToDb(sqlString)
 }
 
-func insertNewRouteStopsIntoDb(routeStops []routeStopInfo) {
+func extractNewStopsFromDB(newStops []stopInfo) []StopInfo {
+	// make list of new GMB Stop Ids
+	var gmbStopIDs []string
+	for _, stop := range newStops {
+		gmbStopIDs = append(gmbStopIDs, stop.GmbStopId)
+	}
+	sqlString := fmt.Sprintf("SELECT id, gmb_stop_id FROM nextbus.stops WHERE gmb_stop_id IN ('%s')", strings.Join(gmbStopIDs, "', '"))
+	stopRows, err := DB.Query(sqlString)
+	if err != nil {
+		log.Printf("error reading data from Postgresql DB: %v", err)
+	}
+
+	var existingStops []StopInfo
+	for stopRows.Next() {
+		var stopInfo StopInfo
+
+		stopRows.Scan(&stopInfo.Id, &stopInfo.GmbStopId)
+		existingStops = append(existingStops, stopInfo)
+	}
+
+	return existingStops
+}
+
+func insertNewRouteStopsIntoDb(routeStops []routeStopInfo, allStops []StopInfo, allRoutes []RouteInfo) {
+	// Notes for tomorrow:
+	// 1. Pass allRoutes into method
+	// 2. Retrieve GmbStopId and Id from DB
+	sqlString := "INSERT INTO nextbus.routestops (route_id, stop_id) VALUES"
+	var sqlStrings []string
+
+	for _, routeStop := range routeStops {
+		var routeStopInfo RouteStopInfo
+
+		for _, stop := range allStops {
+			stopIds := strings.Split(stop.GmbStopId, ",")
+
+			if slices.Contains(stopIds, routeStop.GmbStopId) {
+				routeStopInfo.StopId = stop.Id
+				// TODO: Move to method and return a value
+			}
+		}
+
+		for _, route := range allRoutes {
+			if route.GmbRouteId == routeStop.GmbRouteId {
+				routeStopInfo.RouteId = route.Id
+				// TODO: Move to method and return a value
+			}
+		}
+		if routeStopInfo.RouteId != "" && routeStopInfo.StopId != "" {
+			sqlStrings = append(sqlStrings, fmt.Sprintf("('%s', '%s')", routeStopInfo.RouteId, routeStopInfo.StopId))
+		}
+	}
+	if len(sqlStrings) > 0 {
+		sqlString += strings.Join(sqlStrings, ",")
+		fmt.Println(sqlString)
+		writeToDb(sqlString)
+	} else {
+		fmt.Println("none to add at all")
+	}
 
 }
 
