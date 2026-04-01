@@ -119,7 +119,6 @@ func PopulateRouteStopsTable() {
 		var routeStopInfo RouteStopInfo
 
 		for _, stop := range allStops {
-			// fmt.Println(stop)
 			stopIds := strings.Split(stop.KmbStopId, ",")
 
 			if slices.Contains(stopIds, routeStop.KmbStopId) {
@@ -143,8 +142,6 @@ func PopulateRouteStopsTable() {
 		sqlString += strings.Join(sqlStrings, ",")
 		fmt.Println(sqlString)
 		writeToDb(sqlString)
-	} else {
-		fmt.Println("none to add at all")
 	}
 }
 
@@ -162,12 +159,6 @@ func PopulateGmbRoutesTable() {
 }
 
 func PopulateGmbStopsTable() {
-	// var newStops []stopInfo
-	// newStops = append(newStops, stopInfo{GmbStopId: "20015593"})
-	// newStops = append(newStops, stopInfo{GmbStopId: "20014456"})
-	// newStops = append(newStops, stopInfo{GmbStopId: "20006938"})
-
-	// fmt.Println(newStops)
 	// The GMB API does not return all stops from one endpoint like the KMB API
 	// We need to request the stops for each route, then group the ones with the same stop id to request data about individually.
 
@@ -344,10 +335,7 @@ func insertNewRouteStopsIntoDb(routeStops []routeStopInfo, allStops []StopInfo, 
 	}
 	if len(sqlStrings) > 0 {
 		sqlString += strings.Join(sqlStrings, ",")
-		fmt.Println(sqlString)
 		writeToDb(sqlString)
-	} else {
-		fmt.Println("none to add at all")
 	}
 
 }
