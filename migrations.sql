@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS nextbus.stops
     gmb_name_en text COLLATE pg_catalog."default",
     gmb_name_tc text COLLATE pg_catalog."default",
     gmb_name_sc text COLLATE pg_catalog."default",
+    created_at time with time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT stops_pkey PRIMARY KEY (id)
 )
 
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS nextbus.routes
     gmb_route_id text COLLATE pg_catalog."default",
     region text COLLATE pg_catalog."default",
     description_en text COLLATE pg_catalog."default",
+    created_at time with time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT routes_pkey PRIMARY KEY (id)
 )
 
@@ -39,6 +41,7 @@ CREATE TABLE IF NOT EXISTS nextbus.routestops
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     route_id uuid NOT NULL,
     stop_id uuid NOT NULL,
+    created_at time with time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT routestops_pkey PRIMARY KEY (id),
     CONSTRAINT route_id FOREIGN KEY (route_id)
         REFERENCES nextbus.routes (id) MATCH SIMPLE
