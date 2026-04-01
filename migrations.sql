@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS nextbus.stops
     latitude numeric,
     longitude numeric,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
+    gmb_stop_id text COLLATE pg_catalog."default",
+    gmb_name_en text COLLATE pg_catalog."default",
+    gmb_name_tc text COLLATE pg_catalog."default",
+    gmb_name_sc text COLLATE pg_catalog."default",
     CONSTRAINT stops_pkey PRIMARY KEY (id)
 )
 
