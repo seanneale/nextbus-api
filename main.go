@@ -56,7 +56,7 @@ func main() {
 	// PopulateStopsTable()
 	// PopulateRouteStopsTable()
 	// PopulateGmbRoutesTable()
-	PopulateGmbStopsTable()
+	// PopulateGmbStopsTable()
 
 	err = http.ListenAndServe(":"+port, mux)
 	if err != nil {
