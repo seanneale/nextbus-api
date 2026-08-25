@@ -39,8 +39,15 @@ func handleLearningCenter(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAKungKok(w http.ResponseWriter, r *http.Request) {
+	busTimes := kmb_bus_times([]string{"4B0E21EDF07F9C83", "B8BBCCA288E1F862", "6F03E19C5E800893"})
+	var filtered []busTime
+	for _, bt := range busTimes {
+		if bt.RouteNo == "299X" {
+			filtered = append(filtered, bt)
+		}
+	}
 	tables := []Table{
-		{Name: "A Kung Kok", BusTime: kmb_bus_times([]string{"4B0E21EDF07F9C83", "B8BBCCA288E1F862", "6F03E19C5E800893"})},
+		{Name: "A Kung Kok", BusTime: filtered},
 	}
 	renderFixedTable(tables, w, r)
 }
